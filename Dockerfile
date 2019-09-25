@@ -1,59 +1,60 @@
-FROM ubuntu:14.04
+FROM debian:stable
 
-MAINTAINER Luca Mattivi <luca@smartdomotik.com>
+MAINTAINER Benjamin Aigner <beni@asterics-foundation.org>
 
-ARG TIMEZONE="Europe/Paris"
-ARG ESPO_VERSION=5.3.6
+ARG TIMEZONE="Europe/Vienna"
+ARG ESPO_VERSION=5.6.11
 
 ENV PROJECT_PATH=/var/www \
-    PROJECT_URL=uala.it \
+    PROJECT_URL=espo.wbt.technikum-wien.at \
     DEBIAN_FRONTEND=noninteractive \
     APACHE_RUN_USER=www-data \
     APACHE_RUN_GROUP=www-data \
     APACHE_LOG_DIR=/var/log/apache2 \
     APACHE_LOCK_DIR=/var/lock/apache2 \
     APACHE_PID_FILE=/var/run/apache2/apache2.pid \
-    PHP_MODS_CONF=/etc/php/5.6/mods-available \
-    PHP_INI=/etc/php/5.6/apache2/php.ini \
+    PHP_MODS_CONF=/etc/php/7.3/mods-available \
+    PHP_INI=/etc/php/7.3/apache2/php.ini \
     TERM=xterm
 
+# Install php 7.3
+#RUN apt update && apt install php7.3
+
 # Use PHP5.6 instead of PHP5.5 (need to manually add repo key)
-RUN apt-get update -q && apt-get upgrade -yqq && \
-    apt-get install -yqq software-properties-common && \
-    add-apt-repository ppa:ondrej/php && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4F4EA0AAE5267A6C
+#RUN apt-get update -q && apt-get upgrade -yqq && \
+#    apt-get install -yqq software-properties-common && \
+#    add-apt-repository ppa:ondrej/php && \
+#    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4F4EA0AAE5267A6C
 
 # Utilities, Apache, PHP, and supplementary programs
 RUN apt-get update -q && apt-get install -yqq --force-yes \
-    npm \
-    git \
     htop \
     nano \
+    cron \
     wget \
     zip \
     unzip \
     apache2 \
-    libapache2-mod-php5.6 \
+    libapache2-mod-php7.3 \
     curl \
-    php5.6 \
-    php5.6-dom \
-    php5.6-mbstring \
-    php5.6-mysql \
-    php5.6-json \
-    php5.6-intl \
-    php5.6-mcrypt \
-    php5.6-redis \
-    php5.6-soap \
-    php5.6-curl \
-    php5.6-gd \
-    php5.6-zip \
-    php5.6-imap \
-    php5.6-cgi
-RUN ln -s "$(which nodejs)" /usr/bin/node
+    php7.3 \
+    php7.3-dom \
+    php7.3-mbstring \
+    php7.3-mysql \
+    php7.3-json \
+    php7.3-intl \
+    php7.3-redis \
+    php7.3-soap \
+    php7.3-curl \
+    php7.3-gd \
+    php7.3-zip \
+    php7.3-imap \
+    php7.3-cgi
+#RUN ln -s "$(which nodejs)" /usr/bin/node
 
 # Apache mods
 RUN a2enmod rewrite expires headers
-RUN phpenmod mcrypt imap mbstring
+RUN phpenmod imap mbstring
 
 # PHP.ini file: enable <? ?> tags and quieten logging
 RUN sed -i "s/short_open_tag = Off/short_open_tag = On/" $PHP_INI && \
@@ -66,12 +67,12 @@ RUN sed -i "s/short_open_tag = Off/short_open_tag = On/" $PHP_INI && \
     sed -i "s/upload_max_filesize = .*$/upload_max_filesize = 50M/" $PHP_INI
 
 # Apache2 conf
-RUN echo "ServerName localhost" | sudo tee /etc/apache2/conf-available/fqdn.conf && \
+RUN echo "ServerName localhost" | tee /etc/apache2/conf-available/fqdn.conf && \
     a2enconf fqdn
 
 # Set the timezone.
-RUN sudo echo $TIMEZONE > /etc/timezone && \
-    sudo dpkg-reconfigure -f noninteractive tzdata
+RUN echo $TIMEZONE > /etc/timezone && \
+    dpkg-reconfigure -f noninteractive tzdata
 
 # Add our crontab file
 ADD crons.conf /root/crons.conf
@@ -111,7 +112,7 @@ RUN apt-get purge -yq \
 # Port to expose
 EXPOSE 80
 
-RUN crontab /root/crons.conf
+RUN crontab -u $APACHE_RUN_USER /root/crons.conf
 
 # Remove pre-existent apache pid and start apache
 CMD rm -f $APACHE_PID_FILE && cron && /usr/sbin/apache2ctl -D FOREGROUND

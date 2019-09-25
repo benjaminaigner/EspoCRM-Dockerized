@@ -1,18 +1,23 @@
-# ESPOCRM in Docker
+# Requirements
 
-This is an unofficial dockerized version of [EspoCRM](https://www.espocrm.com/).
+* create a folder "espocrm_data" with owner www-data:www-data
+* create a folder ".data" for DB
+* Adjust passwords in importdb/nativeauthentication **AND** docker-compose_development.yml
 
-It doesn't have custom settings, just attach a mysql container and launch it.
-If you want, you can use docker-compose with this command:
+# Installation
 
-    docker-compose -f docker-compose.yml up
+* `docker-compose -f docker-compose_development.yml up`
+* Open `http://localhost:8888/install` for the initial wizard
 
+# EspoCRM installation
 
-and go to `http://localhost:8888/install` for the initial wizard.
+* Use DB container name as hostname (e.g., "espocrmdockerized_db_1"
+* Default settings for DB connection: DB: "espocrm", user: "espo", pw: "secret2" (CHANGE THIS!)
 
-This image uses EspoCRM version **`5.3.6`**.
+# Adjustments by Benjamin A.:
 
-If you need another version, just change `ESPO_VERSION` env and build a new image.
-
-It is important to mount a volume into the container at /var/www/data, otherwise
-configuration and uploads will be lost following a container restart.
+* docker_compose.yml is removed, because this image is not pulished on DockerHub
+* Debian stable instead of Ubuntu (version pinned)
+* PHP7
+* Added importdb fold, all SQL files are imported to the DB
+* Added ALTER USER for supporting mysql_native authentication (EspoCRM needs this)
