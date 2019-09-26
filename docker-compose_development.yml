@@ -3,15 +3,16 @@ version: '2'
 services:
   db:
     image: mysql
+    command: --default-authentication-plugin=mysql_native_password
     volumes:
       - "/var/lib/espocrm/db/data:/var/lib/mysql"
       - "/var/lib/espocrm/db/import:/docker-entrypoint-initdb.d"
     environment:
       # please adjust these values in the importdb folder as well!!!
-      MYSQL_ROOT_PASSWORD: secret
-      MYSQL_DATABASE: espocrm
-      MYSQL_USER: espo
-      MYSQL_PASSWORD: secret2
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     expose:
       - "3306"
     restart: always
@@ -24,6 +25,8 @@ services:
       - db
     volumes:
       - "/var/lib/espocrm/espocrm-data:/var/www/data"
+    environment:
+      PROJECT_URL: ${ESPO_PROJECT_URL}
     ports:
       - "8888:80"
     restart: always

@@ -6,7 +6,6 @@ ARG TIMEZONE="Europe/Vienna"
 ARG ESPO_VERSION=5.6.11
 
 ENV PROJECT_PATH=/var/www \
-    PROJECT_URL=espo.wbt.technikum-wien.at \
     DEBIAN_FRONTEND=noninteractive \
     APACHE_RUN_USER=www-data \
     APACHE_RUN_GROUP=www-data \
