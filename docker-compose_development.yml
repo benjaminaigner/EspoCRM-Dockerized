@@ -14,6 +14,7 @@ services:
       MYSQL_PASSWORD: secret2
     expose:
       - "3306"
+    restart: always
 
   web:
     build:
@@ -25,3 +26,4 @@ services:
       - "/var/lib/espocrm/espocrm-data:/var/www/data"
     ports:
       - "8888:80"
+    restart: always
