@@ -47,6 +47,7 @@ RUN apt-get update -q && apt-get install -yqq --force-yes \
     php7.3-curl \
     php7.3-gd \
     php7.3-zip \
+    php7.3-ldap \
     php7.3-imap \
     php7.3-cgi
 #RUN ln -s "$(which nodejs)" /usr/bin/node
