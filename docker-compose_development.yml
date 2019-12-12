@@ -25,8 +25,9 @@ services:
       - db
     volumes:
       - "/var/lib/espocrm/espocrm-data:/var/www/data"
+      - "/var/lib/espocrm/espocrm-custom:/var/www/custom"
     environment:
       PROJECT_URL: ${ESPO_PROJECT_URL}
     ports:
-      - "8888:80"
+      - "8120:80"
     restart: always
